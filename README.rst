@@ -30,30 +30,27 @@ algorithms supported by hashlib_ can be used.
 I wrote this after a friend of mine had some hard drive issues on his
 media drive, and was disappointed to find out there wasn't a way to
 test the integrity of his mp3 files like he could with his flac_
-files.
+files.::
+
+  usage: mp3sum [-h] [-c] [-u] [-r] [-s [hash]] [-v] file [file ...]
+  
+  Manage checksums for mp3 audio data in ID3v2 tags
+  
+  positional arguments:
+    file                  file(s) to process
+  
+  optional arguments:
+    -h, --help            show this help message and exit
+    -c, --check           verify checksums (default if no other
+                          operation is requested)
+    -u, --update          calculate and store checksum(s) from file(s)
+                          that don't already have the requested
+                          checksumtype(s)
+    -r, --remove          remove stored checksum(s) from file(s)
+    -s [hash], --sum-type [hash]
+                          type(s) of checksum(s) to calculate
+    -v, --verbose
+
 
 .. _hashlib: http://docs.python.org/library/hashlib.html 
 .. _flac: http://flac.sourceforge.net/
-
-::
-    usage: mp3sum [-h] [-c] [-u] [-r] [-s [hash]] [-v]
-                  file [file ...]
-    
-    Manage checksums for mp3 audio data in ID3v2 tags
-    
-    positional arguments:
-      file                  file(s) to process
-    
-    optional arguments:
-      -h, --help            show this help message and exit
-      -c, --check           verify checksums (default if no other
-                            operation is requested)
-      -u, --update          calculate and store checksum(s) from
-                            file(s) that don't already have the
-                            requested checksumtype(s)
-      -r, --remove          remove stored checksum(s) from file(s)
-      -s [hash], --sum-type [hash]
-                            type(s) of checksum(s) to calculate
-      -v, --verbose
-
-
