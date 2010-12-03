@@ -10,13 +10,14 @@ mp3gainer
 
 This is a simple wrapper for mp3gain_ and/or /aacgain_.  These tools
 store their replaygain data in APEv2_ tags, which I don't use.  This
-wrapper allows the tags to be stored in ID3v2_ tags instead (similar to metamp3_
+wrapper allows the tags to be stored in ID3v2_ tags instead (similar
+to metamp3_).
 
 .. _mp3gain: http://mp3gain.sourceforge.net/
 .. _aacgain: http://altosdesign.com/aacgain/
 .. _APEv2: http://en.wikipedia.org/wiki/APE_tag
 .. _ID3v2: http://www.id3.org/
-.. _metapm3: http://www.hydrogenaudio.org/forums/index.php?showtopic=49751
+.. _metamp3: http://www.hydrogenaudio.org/forums/index.php?showtopic=49751
 
 mp3sum
 ------
