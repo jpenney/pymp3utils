@@ -1,0 +1,9 @@
+*.pyc
+.*.swp
+build
+dist
+MANIFEST
+pymp3utils.egg-info
+.project
+.pydevproject
+.ropeproject
