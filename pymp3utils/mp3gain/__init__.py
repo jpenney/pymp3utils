@@ -142,7 +142,7 @@ def add_to_id3(rg, id3):
     #    id3.delall('TXXX:' + tagname)
 
     for tagname in rg.keys():
-        if tagname in old_rg == False or old_rg[tagname] != rg[tagname]:
+        if tagname not in old_rg or old_rg[tagname] != rg[tagname]:
             updated += 1
             id3.delall('TXXX:' + tagname)
             frame = mutagen.id3.Frames['TXXX'](encoding=3,
