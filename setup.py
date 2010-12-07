@@ -12,12 +12,14 @@ _pkgname = 'pymp3utils'
 
 
 def get_version():
-    ver='unknown'
+    ver = 'unknown'
+    __version__ = ver
     if os.path.exists(_pkgname):
-        sys.path.insert(0, '.')
-        from pymp3utils._version import __version__ as pkg_version
-        ver = pkg_version
-        sys.path = sys.path[1:]
+        f = open(os.path.join(_pkgname, '_version.py'))
+        for v in f.readlines():
+            if v.startswith('__version__'):
+                exec(v)
+        ver = __version__
     return ver
 
 setup(
