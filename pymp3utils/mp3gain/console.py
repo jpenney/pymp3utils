@@ -22,7 +22,9 @@ import os.path
 import pymp3utils
 from pymp3utils.mp3gain import id3_to_ape, ape_to_id3, \
     get_aacgain_exec, AACGainUtilityError
+import pymp3utils.itunes
 
+import eyeD3
 
 # def _mp3albumgainer(argv):
 #     id3_to_ape(argv)
@@ -63,10 +65,22 @@ def main():
     mp3s = filter(pymp3utils.is_mp3, args)
     id3_to_ape(mp3s)
     cmd = [_find_exec()]
-    cmd.extend(args)
     if '-v' in args or '-h' in args or len(args) == 0:
         print '%s version %s, wrapping:' % (bn, pymp3utils.__version__)
+
+    id3version = None
+
+    for ver in [eyeD3.ID3_V2_2, eyeD3.ID3_V2_3, eyeD3.ID3_V2_4]:
+        verstr = '.'.join([str(num) for num in eyeD3.utils.constantToVersions(
+            ver)[0:-1]])
+        arg = 'v'.join(['--id3', verstr])
+        if arg in args:
+            args.remove(arg)
+            id3version = ver
+    cmd.extend(args)
     subprocess.call(cmd)
-    ape_to_id3(mp3s)
-
-
+    ape_to_id3(mp3s, id3version)
+    for m in mp3s:
+        tag = pymp3utils.get_tag(m)
+        if  pymp3utils.itunes.update_soundcheck(tag) > 0:
+            tag.update()
