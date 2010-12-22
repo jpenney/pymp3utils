@@ -19,6 +19,7 @@ import hashlib
 import inspect
 import sys
 
+import eyeD3
 import argparse
 from mp3 import MP3Error
 
@@ -27,27 +28,36 @@ from pymp3utils.mp3sum import validate_sum, hash_type_default, \
     get_sum_frame, set_sum_frame, remove_sum_frame, build_hash
 
 
-def _validate_files(files, verbose):
+def _validate_files(files, verbose, quiet):
     err = 0
     for f in files:
-        print "'%s':" % f,
+        diag = False
+        result = "'%s': " % f
         try:
             res = validate_sum(f)
         except MP3Error, v:
-            print 'ERROR: %s' % v.args[0],
+            result += 'ERROR: %s' % v.args[0]
             err += 1
-            continue
-        if len(res) == 0:
-            print 'no checksums found',
-        else:
-            for r in res:
-                print '%s:' % r[0],
-                if r[1]:
-                    print 'ok',
-                else:
-                    print 'CORRUPT',
-                    err += 1
-        print ''
+            diag = True
+
+        if not diag:
+            if len(res) == 0:
+                result += 'no checksums found'
+                diag = True
+            else:
+                rstrings = []
+                for r in res:
+                    rstring = '%s:' % str(r[0])
+                    if r[1]:
+                        rstring += 'ok'
+                    else:
+                        rstring += 'CORRUPT'
+                        diag = True
+                        err += 1
+                    rstrings.append(rstring)
+                result += ', '.join(rstrings)
+        if not quiet or diag:
+            print result
 
     if err > 0:
         sys.exit(1)
@@ -59,6 +69,9 @@ def _update_files(
     sum_types,
     add,
     remove,
+    quiet,
+    version = eyeD3.ID3_ANY_VERSION,
+    v1 = False
     ):
 
     for f in files:
@@ -88,7 +101,7 @@ def _update_files(
         if update:
             if verbose:
                 print ' updating file'
-            tag.update()
+            pymp3utils.set_tag_version(tag, version, v1)
 
 
 def main():
@@ -127,17 +140,34 @@ def main():
         choices=valid_types,
         )
     parser.add_argument('-v', '--verbose', action='store_true')
+    parser.add_argument('-q', '--quiet', action='store_true')
+    for ver in [eyeD3.ID3_V2_2, eyeD3.ID3_V2_3, eyeD3.ID3_V2_4]:
+        verstr = '.'.join([str(num) for num in eyeD3.utils.constantToVersions(
+            ver)[0:-1]])
+        parser.add_argument('v'.join(['--id3', verstr]),
+                            help='save as ID3v%s' % verstr,
+                            action='store_const',
+                            const=ver,
+                            dest='version',
+                            default=eyeD3.ID3_ANY_VERSION
+                            )
+
+    parser.add_argument('--id3v1',
+                        action='store_true',
+                        dest='v1')
 
     args = parser.parse_args()
+
+    if args.quiet:
+        args.verbose = False
 
     do_check = args.check
     if args.update or args.remove:
         _update_files(args.files, args.verbose, args.sum_type,
-                      args.update, args.remove)
+                      args.update, args.remove, args.quiet,
+                      args.version, args.v1)
     else:
         do_check = True
 
     if do_check:
-        _validate_files(args.files, args.verbose)
-
-
+        _validate_files(args.files, args.verbose, args.quiet)
