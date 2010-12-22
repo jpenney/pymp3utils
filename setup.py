@@ -22,6 +22,10 @@ def get_version():
         ver = __version__
     return ver
 
+extra = {}
+if sys.version_info >= (3,):
+    extra['use_2to3'] = True
+
 setup(
     name=_pkgname,
     version=get_version(),
@@ -45,4 +49,5 @@ setup(
                       'ter#egg=MP3_Tools-0.1'],
     include_package_data=True,
     exclude_package_data={'': ['test/*']},
+    **extra
     )
