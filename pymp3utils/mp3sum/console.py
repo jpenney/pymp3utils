@@ -23,7 +23,7 @@ import eyeD3
 import argparse
 from mp3 import MP3Error
 
-from pymp3utils import get_tag
+import pymp3utils
 from pymp3utils.mp3sum import validate_sum, hash_type_default, \
     get_sum_frame, set_sum_frame, remove_sum_frame, build_hash
 
@@ -78,7 +78,7 @@ def _update_files(
         if verbose:
             print f
         update = False
-        tag = get_tag(f)
+        tag = pymp3utils.get_tag(f)
         for s in sum_types:
             if remove:
                 if get_sum_frame(tag, s) != None:
@@ -101,7 +101,7 @@ def _update_files(
         if update:
             if verbose:
                 print ' updating file'
-            pymp3utils.set_tag_version(tag, version, v1)
+            pymp3utils.set_id3_version(tag, version, v1)
 
 
 def main():
