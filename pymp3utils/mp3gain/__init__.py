@@ -190,10 +190,13 @@ def add_to_id3(rg, id3):
             for r in rva2_tags:
                 if r.desc == gtype and r.channel == 1:
                     rva2 = r
-                    rva2_tags.remove(r)
+                    try:
+                        rva2_tags.remove(r)
+                    except:
+                        pass
                     break
             if not rva2:
-                rva2 = mutagen.id3.Frames['RVA2'](channel=1, desc=gtype)          
+                rva2 = mutagen.id3.Frames['RVA2'](channel=1, desc=gtype)
             peak = None
             gain = float(rg[gain_tag])
             if peak_tag in rg:
