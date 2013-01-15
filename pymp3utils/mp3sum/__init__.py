@@ -20,7 +20,7 @@ import hashlib
 import eyeD3
 import mp3 as MP3
 
-from pymp3utils import get_filename, get_tag
+from pymp3utils import get_filename, get_tag, memoize
 
 
 hash_type_default = 'sha256'
@@ -30,7 +30,7 @@ Default hash to use if not specified in all functions that have a
 """
 _owner_id_prefix = 'mp3sum'
 
-
+@memoize
 def get_key(hash_type=hash_type_default):
     """
     Returns mp3sum user text frame description for given hash type.
