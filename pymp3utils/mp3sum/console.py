@@ -101,7 +101,7 @@ def _update_files(
         if update:
             if verbose:
                 print ' updating file'
-            pymp3utils.set_id3_version(tag, version, v1)
+            pymp3utils.set_id3_version(tag, version, v1, update)
 
 
 def main():

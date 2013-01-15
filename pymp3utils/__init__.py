@@ -20,6 +20,8 @@ import os.path
 
 import eyeD3
 
+from functools import wraps
+
 __version__ = 'unknown'
 try:
     from pymp3utils._version import __version__ as v
@@ -27,32 +29,57 @@ try:
 except:
     pass
 
+def memoize(func):
+    func._memoize_cache = {}
 
-# taken from flashbake
+    @wraps(func)
+    def _memoize(*args, **kwargs):
+        try:
+            if kwargs:
+                key = args, frozenset(kwargs.items())
+            else:
+                key = args
+        
+            hash(key)
+        except TypeError:
+            # in case something wasn't hashable, just call the func
+            return func(*args, **kwargs)
 
+        cache = func._memoize_cache
+        if not key in cache:
+            cache[key] = func(*args, **kwargs)
+
+        return cache[key]
+
+    return _memoize
+
+# originally taken from flashbake
+# optimized using generators (early matches about 10x faster)
+@memoize
 def _find_executable(executable):
-    found = filter(lambda ex: os.path.exists(ex),
-                   map(lambda path_token: os.path.join(path_token,
-                   executable), os.getenv('PATH').split(os.pathsep)))
-    if len(found) == 0:
-        return None
-    return found[0]
-
+    ex_paths = (os.path.join(path, executable) for path in \
+                    os.getenv('PATH').split(os.pathsep))
+    paths = (ex_path for ex_path in ex_paths \
+                 if os.path.exists(ex_path))
+    return next(paths, None)
 
 # taken from flashbake
-
 def _executable_available(executable):
     return _find_executable(executable) != None
 
-
-def set_id3_version(target, version, v1=False):
+def set_id3_version(target, version, v1=False, force_update=False):
     """
     Changes the tag to the specified version if necessary.
 
     :param target: target to act on
+    :type target: `eyeD3.Tag`, `eyeD3.TagFile`, or string
     :param version: tag version as defined by `eyeD3`
     :param v1: flag to also save ID3v1 tags
     :type v1: bool
+    :pram force_update: 
+        force tag v2.x tag to write even if version is not changed
+
+    :type force_update: bool
     """
     try:
         tag = get_tag(target)
@@ -60,7 +87,7 @@ def set_id3_version(target, version, v1=False):
         tag = None
 
     if tag != None:
-        if tag.getVersion() != version:
+        if force_update or tag.getVersion() != version:
             tag.update(version)
         if v1:
             tag.update(eyeD3.ID3_V1)
@@ -89,7 +116,7 @@ def get_tag(target, version=eyeD3.ID3_ANY_VERSION):
 
     raise TypeError('unable to convert to eyeD3.Tag: %s' % str(target))
 
-
+@memoize
 def get_filename(target):
     """
     Returns string containing a filepath for `target`
@@ -109,12 +136,13 @@ def get_filename(target):
         return target.linkedFile.name
     raise TypeError('unable to convert to filepath: %s' % str(target))
 
-
+@memoize
 def is_mp3(target):
     """
     Return true if `target` is an mp3 target
 
     :param target: file to test
+    :type target: `eyeD3.Tag`, `eyeD3.TagFile`, or string
     """
 
     try:
@@ -170,5 +198,3 @@ def convert_frame(target, oldID, newID):
         count = count + 1
 
     return count
-
-
